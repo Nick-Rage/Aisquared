@@ -55,5 +55,6 @@ def reindex():
 
 
 if __name__ == "__main__":
-    # Make sure OLLAMA is running locally (ollama serve) and the model is pulled (e.g., ollama pull mistral)
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
+
+
