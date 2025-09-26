@@ -102,7 +102,7 @@ def ask_question(vectorstore, query):
     if query.lower() in ["hi", "hello", "hey", "how are you?", "how are you"]:
         return "I’m doing well 😊 Thanks for asking! How can I help with your PDFs?"
 
-    llm = Ollama(model="mistral")  # or llama3 if you prefer
+    llm = Ollama(model="mistral:latest")
 
     system_prompt = """
 You are a helpful AI assistant.
@@ -135,3 +135,4 @@ Answer:
 """
     response = llm.invoke(prompt)
     return str(response)
+
