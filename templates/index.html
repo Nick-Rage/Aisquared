@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PDF Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h3>📂 PDFs</h3>
+    <ul id="stats-list"></ul>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-container">
+    <h1>PDF Chatbot</h1>
+    <p class="subtitle">Ask anything about your documents</p>
+
+    <div id="chat-box"></div>
+
+    <div class="input-row">
+      <input type="text" id="user-input" placeholder="Ask me anything...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadStats() {
+  const res = await fetch("/stats");
+  const stats = await res.json();
+  const ul = document.getElementById("stats-list");
+  ul.innerHTML = "";
+  stats.forEach(pdf => {
+    const li = document.createElement("li");
+    li.textContent = `${pdf.filename} — ${pdf.pages} pages, ${pdf.words} words`;
+    ul.appendChild(li);
+  });
+}
+loadStats();
+
+async function sendMessage() {
+  const input = document.getElementById("user-input");
+  const chatBox = document.getElementById("chat-box");
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  chatBox.innerHTML += `<p><b>You:</b> ${msg}</p>`;
+  chatBox.innerHTML += `<p id="thinking"><i>Bot is thinking...</i></p>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  input.value = "";
+
+  const res = await fetch("/ask", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({query: msg})
+  });
+  const data = await res.json();
+
+  document.getElementById("thinking").remove();
+  chatBox.innerHTML += `<p><b>Bot:</b> ${data.answer}</p>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+</script>
+</body>
+</html>

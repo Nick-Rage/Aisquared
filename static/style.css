@@ -1,0 +1,156 @@
+/* -------- Base / Reset -------- */
+* { box-sizing: border-box; }
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #121417;
+  --muted: #6b7280;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --border: #e5e7eb;
+  --bubble-user: #e8f0ff;
+  --bubble-bot: #f3f4f6;
+  --shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0f1a;
+    --card: #0f172a;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --primary: #60a5fa;
+    --primary-hover: #93c5fd;
+    --border: #1f2937;
+    --bubble-user: #0b3b77;
+    --bubble-bot: #111827;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1200px 800px at 10% 10%, rgba(59,130,246,0.08), transparent 40%),
+              radial-gradient(1000px 700px at 90% 20%, rgba(16,185,129,0.08), transparent 35%),
+              var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* -------- Container -------- */
+.chat-container {
+  width: min(900px, 92vw);
+  margin: 48px auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  letter-spacing: 0.2px;
+}
+
+.subtitle {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* -------- Chat Box -------- */
+#chat-box {
+  height: 60vh;
+  min-height: 360px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent 30%);
+  scroll-behavior: smooth;
+}
+
+/* Basic bubble styling for appended <p> entries */
+#chat-box p {
+  margin: 10px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  line-height: 1.45;
+  background: var(--bubble-bot);
+  border: 1px solid var(--border);
+}
+
+/* Alternate bubbles for readability (since we don't have classes) */
+#chat-box p:nth-child(odd) {
+  background: var(--bubble-user);
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+}
+
+/* Make labels inside <b> subtler */
+#chat-box p b {
+  color: var(--muted);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* -------- Input Row -------- */
+.input-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+#user-input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 16px;
+  color: var(--text);
+  background: transparent;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+#user-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+button {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--border));
+  background: linear-gradient(180deg, var(--primary), var(--primary-hover));
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.05s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+}
+button:hover { filter: brightness(1.03); }
+button:active { transform: translateY(1px); }
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* -------- Utilities -------- */
+.hr {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0 16px;
+  border: 0;
+}
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  #chat-box { height: 56vh; }
+  button { padding: 12px 14px; }
+}
