@@ -5,38 +5,38 @@ import os
 
 app = Flask(__name__)
 
-# Warm up on startup (downloads from S3, builds index)
-vectorstore = get_vectorstore()
+# Don't run get_vectorstore() here
+vectorstore = None
 
+@app.before_first_request
+def load_index():
+    global vectorstore
+    if vectorstore is None:
+        vectorstore = get_vectorstore()
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-
 @app.route("/ask", methods=["POST"])
 def ask():
+    global vectorstore
+    if vectorstore is None:
+        vectorstore = get_vectorstore()
     data = request.get_json()
     query = data.get("query", "")
-    # ensure vectorstore is present
-    vs = vectorstore or get_vectorstore()
-    answer = ask_question(vs, query)
+    answer = ask_question(vectorstore, query)
     return jsonify({"answer": answer})
-
 
 @app.route("/stats")
 def stats():
     return jsonify(PDF_STATS)
 
-
-# --------- S3 Upload (Presigned POST) ----------
 @app.route("/upload-url", methods=["POST"])
 def upload_url():
     data = request.get_json()
     filename = data["filename"]
-    # Store at root (or prefix with "uploads/")
     key = filename
-
     presigned = s3.generate_presigned_post(
         Bucket=S3_BUCKET,
         Key=key,
@@ -46,15 +46,10 @@ def upload_url():
     )
     return jsonify(presigned)
 
-
-# Trigger a full re-sync & re-index after uploads
 @app.route("/reindex", methods=["POST"])
 def reindex():
     refresh_index()
     return jsonify({"ok": True, "count": len(PDF_STATS)})
 
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-
-
