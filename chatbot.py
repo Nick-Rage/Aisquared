@@ -103,7 +103,7 @@ def ask_question(vectorstore, query):
         return "I’m doing well 😊 Thanks for asking! How can I help with your PDFs?"
 
     # 🔄 Switched from mistral to gemma:2b
-    llm = Ollama(model="gemma:2b")
+    llm = Ollama(model="gemma:2b", options={"num_ctx": 1024})
 
     system_prompt = """
 You are a helpful AI assistant.
@@ -136,3 +136,4 @@ Answer:
 """
     response = llm.invoke(prompt)
     return str(response)
+
