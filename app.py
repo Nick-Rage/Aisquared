@@ -5,35 +5,40 @@ import os
 
 app = Flask(__name__)
 
-# Don't run get_vectorstore() here
+# Warm up on startup (downloads from S3, builds index)
 vectorstore = None
 
-@app.before_first_request
-def load_index():
+def warmup():
     global vectorstore
     if vectorstore is None:
         vectorstore = get_vectorstore()
+
 
 @app.route("/")
 def index():
+    warmup()
     return render_template("index.html")
+
 
 @app.route("/ask", methods=["POST"])
 def ask():
-    global vectorstore
-    if vectorstore is None:
-        vectorstore = get_vectorstore()
+    warmup()
     data = request.get_json()
     query = data.get("query", "")
-    answer = ask_question(vectorstore, query)
+    vs = vectorstore or get_vectorstore()
+    answer = ask_question(vs, query)
     return jsonify({"answer": answer})
+
 
 @app.route("/stats")
 def stats():
+    warmup()
     return jsonify(PDF_STATS)
+
 
 @app.route("/upload-url", methods=["POST"])
 def upload_url():
+    warmup()
     data = request.get_json()
     filename = data["filename"]
     key = filename
@@ -46,10 +51,14 @@ def upload_url():
     )
     return jsonify(presigned)
 
+
 @app.route("/reindex", methods=["POST"])
 def reindex():
+    warmup()
     refresh_index()
     return jsonify({"ok": True, "count": len(PDF_STATS)})
 
+
 if __name__ == "__main__":
+    warmup()  # do it once on startup
     app.run(host="0.0.0.0", port=5000, debug=False)
