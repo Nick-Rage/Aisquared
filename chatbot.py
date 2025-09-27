@@ -10,14 +10,14 @@ from langchain_community.llms import Ollama
 # ==== CONFIG ====
 LOCAL_FOLDER = "data"
 INDEX_PATH = "faiss_index"
-S3_BUCKET = "nikhil-pdf-chatbot"  # <-- replace with your bucket name
+S3_BUCKET = "nikhil-pdf-chatbot"  
 
-PDF_STATS = []  # global cache
+PDF_STATS = []  
 
 # S3 client
 s3 = boto3.client("s3")
 
-# ==== SYNC S3 TO LOCAL ====
+# SYNC S3 TO LOCAL
 def sync_from_s3():
     os.makedirs(LOCAL_FOLDER, exist_ok=True)
     response = s3.list_objects_v2(Bucket=S3_BUCKET)
@@ -29,7 +29,7 @@ def sync_from_s3():
                 print(f"⬇️ Downloading {key} from S3...")
                 s3.download_file(S3_BUCKET, key, local_path)
 
-# ==== LOAD PDFs + stats ====
+# LOAD PDFs + stats
 def extract_text():
     global PDF_STATS
     PDF_STATS.clear()
@@ -62,14 +62,13 @@ def extract_text():
             print(f"✅ {filename}: {len(pdf.pages)} pages, {word_count} words")
     return docs
 
-# ==== CHUNKING ====
 def chunk_docs(docs):
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     chunks = splitter.split_documents(docs)
     print(f"🔎 Created {len(chunks)} chunks from {len(docs)} pages.")
     return chunks
 
-# ==== EMBEDDINGS + FAISS ====
+
 def build_index(docs):
     model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     vectorstore = FAISS.from_documents(docs, model)
@@ -81,7 +80,7 @@ def load_index():
     model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     return FAISS.load_local(INDEX_PATH, model, allow_dangerous_deserialization=True)
 
-# ==== PUBLIC FUNCTIONS ====
+#PUBLIC FUNCTIONS 
 def get_vectorstore():
     sync_from_s3()  # pull latest PDFs from S3
     docs = extract_text()
@@ -136,4 +135,5 @@ Answer:
 """
     response = llm.invoke(prompt)
     return str(response)
+
 
