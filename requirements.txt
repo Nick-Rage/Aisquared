@@ -1,0 +1,8 @@
+flask
+boto3
+pdfplumber
+faiss-cpu
+sentence-transformers
+langchain
+langchain-community
+langchain-ollama
